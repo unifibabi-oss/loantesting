@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoanTrack Pro — Loan Management System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f9f8f5;
+  --border: #e8e5de;
+  --border2: #d4d0c8;
+  --text: #1a1917;
+  --text2: #6b6860;
+  --text3: #9b9890;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --sidebar: 220px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; overflow-x: hidden; }
+
+/* ── LAYOUT ── */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: var(--sidebar);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+}
+.page { padding: 24px; flex: 1; }
+
+/* ── SIDEBAR ── */
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  display: flex; align-items: center; gap: 9px;
+}
+.logo-icon {
+  width: 30px; height: 30px;
+  background: var(--text);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--mono);
+}
+.logo-text { font-weight: 600; font-size: 14px; letter-spacing: -0.02em; }
+.logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
+
+.nav { padding: 12px 8px; flex: 1; overflow-y: auto; }
+.nav-section { margin-bottom: 20px; }
+.nav-label { font-size: 9px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; font-weight: 500; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.15s;
+  text-decoration: none;
+  position: relative;
+  user-select: none;
+}
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--text); color: white; font-weight: 500; }
+.nav-item .nav-icon { width: 16px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-family: var(--mono);
+}
+.nav-item.active .nav-badge { background: rgba(255,255,255,0.25); }
+
+.sidebar-user {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+.user-card {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.user-card:hover { background: var(--bg); }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  flex-shrink: 0;
+}
+.av-admin { background: #1a1917; color: white; }
+.av-manager { background: var(--purple-bg); color: var(--purple); }
+.av-staff { background: var(--accent-bg); color: var(--accent); }
+.user-name { font-size: 12px; font-weight: 500; }
+.user-role { font-size: 10px; color: var(--text3); }
+.logout-btn { margin-left: auto; color: var(--text3); font-size: 14px; cursor: pointer; transition: color 0.15s; }
+.logout-btn:hover { color: var(--red); }
+
+/* ── TOPBAR ── */
+.page-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.notif-btn {
+  position: relative;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s;
+}
+.notif-btn:hover { background: var(--bg); }
+.notif-dot {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 7px; height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--text); color: white; }
+.btn-primary:hover { background: #333; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fee2e2; }
+.btn-success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
+.btn-success:hover { background: #dcfce7; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-icon { padding: 7px 10px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 600; }
+.card-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── STAT CARDS ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 8px; font-weight: 500; letter-spacing: 0.03em; }
+.stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; font-family: var(--mono); }
+.stat-change { font-size: 11px; margin-top: 4px; }
+.stat-change.up { color: var(--green); }
+.stat-change.down { color: var(--red); }
+.stat-icon { float: right; font-size: 22px; margin-top: -4px; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { border-bottom: 1px solid var(--border); }
+th { padding: 10px 12px; text-align: left; font-size: 11px; color: var(--text2); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg); }
+.td-mono { font-family: var(--mono); font-size: 12px; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-blue { background: var(--accent-bg); color: var(--accent); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-gray { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+/* ── FORMS ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label { font-size: 12px; font-weight: 500; color: var(--text2); }
+input, select, textarea {
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+select { cursor: pointer; }
+textarea { resize: vertical; min-height: 80px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500;
+  padding: 20px;
+  display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.modal-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+}
+.modal-title { font-size: 15px; font-weight: 600; }
+.modal-close { cursor: pointer; color: var(--text2); font-size: 18px; line-height: 1; padding: 4px; border-radius: 4px; transition: background 0.15s; }
+.modal-close:hover { background: var(--bg); }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ── LOGIN ── */
+#loginPage {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 380px;
+  box-shadow: var(--shadow-md);
+}
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo .logo-icon { width: 48px; height: 48px; font-size: 20px; margin: 0 auto 10px; }
+.login-logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+.login-logo p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-btn { width: 100%; padding: 10px; justify-content: center; font-size: 14px; margin-top: 4px; }
+.login-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 6px; }
+.role-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
+.role-chip {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.role-chip:hover { background: var(--bg); border-color: var(--border2); }
+
+/* ── NOTIFICATIONS PANEL ── */
+.notif-panel {
+  position: fixed;
+  top: 56px; right: 0;
+  width: 340px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  z-index: 200;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  display: none;
+}
+.notif-panel.open { display: block; }
+.notif-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.notif-title { font-size: 13px; font-weight: 600; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.notif-item:hover { background: var(--bg); }
+.notif-item.unread { background: var(--accent-bg); }
+.notif-item-title { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.notif-item-body { font-size: 11px; color: var(--text2); }
+.notif-item-time { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: var(--mono); }
+.notif-empty { padding: 32px 16px; text-align: center; color: var(--text3); font-size: 13px; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar { background: var(--border); border-radius: 10px; height: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 10px; background: var(--accent); transition: width 0.3s; }
+
+/* ── SECTION HEADER ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+.section-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 20px; width: fit-content; }
+.tab { padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text2); transition: all 0.15s; }
+.tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+/* ── INTEREST CALC ── */
+.calc-result {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-top: 14px;
+}
+.calc-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+.calc-row.total { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 9px; font-weight: 600; }
+.calc-row .lbl { color: var(--text2); }
+.calc-row .val { font-family: var(--mono); }
+
+/* ── EMPTY STATE ── */
+.empty-state { padding: 48px 20px; text-align: center; color: var(--text2); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; font-weight: 500; }
+.empty-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* ── SEARCH ── */
+.search-input {
+  padding: 7px 11px 7px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  width: 220px;
+  transition: all 0.15s;
+}
+.search-input:focus { background: var(--surface); border-color: var(--accent); width: 260px; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+.search-wrap { position: relative; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px; pointer-events: none; }
+
+/* ── UTILS ── */
+.flex { display: flex; align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.text-right { text-align: right; }
+.text-muted { color: var(--text2); font-size: 12px; }
+.font-mono { font-family: var(--mono); }
+.hidden { display: none !important; }
+.w-full { width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN PAGE ══ -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">LT</div>
+      <h1>LoanTrack Pro</h1>
+      <p>Loan Management System</p>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="Enter username" value="admin" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password" value="admin123" />
+      </div>
+      <button class="btn btn-primary login-btn" onclick="doLogin()">Sign In</button>
+    </div>
+    <div class="login-hint">Demo accounts — click to fill:</div>
+    <div class="role-demo">
+      <div class="role-chip" onclick="fillLogin('admin','admin123')">👑 Admin</div>
+      <div class="role-chip" onclick="fillLogin('manager','mgr123')">🧑‍💼 Manager</div>
+      <div class="role-chip" onclick="fillLogin('staff1','staff123')">👤 Staff</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="appShell" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">LT</div>
+        <div>
+          <div class="logo-text">LoanTrack</div>
+          <div class="logo-sub">Pro</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="nav('dashboard')">
+          <span class="nav-icon">◈</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="nav('notifications')">
+          <span class="nav-icon">◐</span> Notifications
+          <span class="nav-badge" id="navNotifCount">3</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Loans</div>
+        <div class="nav-item" onclick="nav('loans')">
+          <span class="nav-icon">◇</span> All Loans
+        </div>
+        <div class="nav-item" onclick="nav('customers')">
+          <span class="nav-icon">○</span> Customers
+        </div>
+        <div class="nav-item" onclick="nav('repayments')">
+          <span class="nav-icon">◁</span> Repayments
+        </div>
+        <div class="nav-item" onclick="nav('overdue')">
+          <span class="nav-icon">△</span> Overdue
+          <span class="nav-badge" id="navOverdueCount">2</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Finance</div>
+        <div class="nav-item" onclick="nav('receivables')">
+          <span class="nav-icon">◈</span> Receivables
+        </div>
+        <div class="nav-item" onclick="nav('performance')">
+          <span class="nav-icon">▷</span> Performance
+        </div>
+        <div class="nav-item" onclick="nav('calculator')">
+          <span class="nav-icon">◻</span> Calculator
+        </div>
+      </div>
+      <div class="nav-section" id="adminNav">
+        <div class="nav-label">Admin</div>
+        <div class="nav-item" onclick="nav('users')">
+          <span class="nav-icon">◎</span> Users & Roles
+        </div>
+        <div class="nav-item" onclick="nav('settings')">
+          <span class="nav-icon">⊙</span> Settings
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-card">
+        <div class="avatar" id="sidebarAvatar"></div>
+        <div>
+          <div class="user-name" id="sidebarName"></div>
+          <div class="user-role" id="sidebarRole"></div>
+        </div>
+        <div class="logout-btn" onclick="doLogout()" title="Logout">⏻</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" placeholder="Search loans, customers..." onkeyup="globalSearch(this.value)" />
+        </div>
+        <div class="notif-btn" onclick="toggleNotifPanel()" id="notifBtn">
+          🔔
+          <div class="notif-dot" id="notifDot"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addLoanModal')">+ New Loan</button>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-header">
+        <div class="notif-title">Notifications</div>
+        <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Mark all read</button>
+      </div>
+      <div id="notifList"></div>
+    </div>
+
+    <div class="page" id="pageContent"></div>
+  </main>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- ADD LOAN MODAL -->
+<div class="modal-overlay" id="addLoanModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Loan Application</div>
+      <div class="modal-close" onclick="closeModal('addLoanModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Customer Name</label>
+          <input type="text" id="loanCustomer" placeholder="Full name" />
+        </div>
+        <div class="form-group">
+          <label>Phone / IC</label>
+          <input type="text" id="loanPhone" placeholder="01X-XXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label>Loan Amount (RM)</label>
+          <input type="number" id="loanAmount" placeholder="10000" oninput="calcLoanPreview()" />
+        </div>
+        <div class="form-group">
+          <label>Interest Rate (%)</label>
+          <input type="number" id="loanRate" placeholder="5" step="0.1" oninput="calcLoanPreview()" />
+        </div>
+        <div class="form-group">
+          <label>Interest Type</label>
+          <select id="loanRateType" onchange="calcLoanPreview()">
+            <option value="yearly">Per Year (Yearly)</option>
+            <option value="monthly">Per Month (Monthly)</option>
+            <option value="weekly">Per Week (Weekly)</option>
+            <option value="daily">Per Day (Daily)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Loan Duration</label>
+          <div style="display:flex;gap:6px">
+            <input type="number" id="loanDuration" placeholder="12" oninput="calcLoanPreview()" style="flex:1" />
+            <select id="loanDurationUnit" onchange="calcLoanPreview()" style="width:110px">
+              <option value="months">Months</option>
+              <option value="weeks">Weeks</option>
+              <option value="days">Days</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Disbursement Date</label>
+          <input type="date" id="loanStartDate" />
+        </div>
+        <div class="form-group">
+          <label>Assigned Staff</label>
+          <select id="loanStaff">
+            <option value="">Select staff</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Notes</label>
+          <textarea id="loanNotes" placeholder="Additional notes..."></textarea>
+        </div>
+      </div>
+      <div class="calc-result" id="loanPreview" style="display:none">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Loan Summary</div>
+        <div class="calc-row"><span class="lbl">Principal</span><span class="val" id="prev-principal">—</span></div>
+        <div class="calc-row"><span class="lbl">Total Interest</span><span class="val" id="prev-interest">—</span></div>
+        <div class="calc-row"><span class="lbl">Installment / period</span><span class="val" id="prev-install">—</span></div>
+        <div class="calc-row total"><span class="lbl">Total Repayable</span><span class="val" id="prev-total">—</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addLoanModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitLoan()">Create Loan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD REPAYMENT MODAL -->
+<div class="modal-overlay" id="addRepayModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Record Repayment</div>
+      <div class="modal-close" onclick="closeModal('addRepayModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Loan ID</label>
+          <input type="text" id="repayLoanId" readonly style="background:var(--bg)" />
+        </div>
+        <div class="form-group">
+          <label>Customer</label>
+          <input type="text" id="repayCustomer" readonly style="background:var(--bg)" />
+        </div>
+        <div class="form-group">
+          <label>Amount Paid (RM)</label>
+          <input type="number" id="repayAmount" placeholder="500" />
+        </div>
+        <div class="form-group">
+          <label>Payment Date</label>
+          <input type="date" id="repayDate" />
+        </div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="repayMethod">
+            <option>Cash</option>
+            <option>Bank Transfer</option>
+            <option>Online Banking</option>
+            <option>Cheque</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Reference No.</label>
+          <input type="text" id="repayRef" placeholder="TXN-XXXX" />
+        </div>
+        <div class="form-group full">
+          <label>Remarks</label>
+          <textarea id="repayRemark" placeholder="Notes..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addRepayModal')">Cancel</button>
+      <button class="btn btn-success" onclick="submitRepayment()">✓ Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add User</div>
+      <div class="modal-close" onclick="closeModal('addUserModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="newUserName" placeholder="Ahmad bin Ali" />
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="newUserUsername" placeholder="ahmad.ali" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="newUserPass" placeholder="Password" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="newUserRole">
+            <option value="staff">Staff</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="newUserEmail" placeholder="email@company.com" />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="newUserPhone" placeholder="01X-XXXXXXX" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitUser()">Add User</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA STORE
+// ══════════════════════════════════════════════
+const USERS = [
+  { id: 1, username: 'admin',    password: 'admin123', name: 'Ahmad Rizal',    role: 'admin',   email: 'admin@loantrack.my',   phone: '012-3456789', active: true },
+  { id: 2, username: 'manager',  password: 'mgr123',   name: 'Siti Nurhaliza', role: 'manager', email: 'siti@loantrack.my',    phone: '016-7891234', active: true },
+  { id: 3, username: 'staff1',   password: 'staff123', name: 'Mohd Faris',     role: 'staff',   email: 'faris@loantrack.my',   phone: '011-22334455', active: true },
+  { id: 4, username: 'staff2',   password: 'staff123', name: 'Nurul Ain',      role: 'staff',   email: 'nurul@loantrack.my',   phone: '019-9988776', active: true },
+];
+
+let LOANS = [
+  { id: 'L001', customer: 'Tan Wei Ming',    phone: '012-3334444', amount: 20000, rate: 5, rateType: 'yearly', duration: 24, durationUnit: 'months', startDate: '2024-01-15', staff: 3, status: 'active',   notes: 'Home renovation', paidAmount: 8500 },
+  { id: 'L002', customer: 'Siti Rahimah',    phone: '016-5556666', amount: 8000,  rate: 3, rateType: 'monthly', duration: 12, durationUnit: 'months', startDate: '2024-03-01', staff: 4, status: 'overdue',  notes: 'Personal loan',   paidAmount: 2000 },
+  { id: 'L003', customer: 'Raj Kumar',       phone: '011-7778888', amount: 15000, rate: 4, rateType: 'yearly', duration: 18, durationUnit: 'months', startDate: '2024-06-10', staff: 3, status: 'active',   notes: 'Business capital',paidAmount: 5000 },
+  { id: 'L004', customer: 'Faridah Binti Ali', phone: '019-1112222', amount: 5000, rate: 2, rateType: 'monthly', duration: 6, durationUnit: 'months', startDate: '2024-09-01', staff: 4, status: 'closed',   notes: '',  paidAmount: 5000 },
+  { id: 'L005', customer: 'Chen Ah Kow',     phone: '017-3334444', amount: 30000, rate: 4.5, rateType: 'yearly', duration: 36, durationUnit: 'months', startDate: '2024-11-20', staff: 3, status: 'overdue',  notes: 'Car purchase',    paidAmount: 3000 },
+  { id: 'L006', customer: 'Hafizuddin Noor', phone: '013-9990001', amount: 12000, rate: 1, rateType: 'weekly', duration: 52, durationUnit: 'weeks', startDate: '2025-01-05', staff: 4, status: 'active',   notes: 'Education',       paidAmount: 4500 },
+];
+
+let REPAYMENTS = [
+  { id: 'R001', loanId: 'L001', customer: 'Tan Wei Ming',   amount: 4000, date: '2024-04-15', method: 'Bank Transfer', ref: 'TXN-1001', staff: 3 },
+  { id: 'R002', loanId: 'L001', customer: 'Tan Wei Ming',   amount: 2500, date: '2024-07-10', method: 'Cash',          ref: '',         staff: 3 },
+  { id: 'R003', loanId: 'L002', customer: 'Siti Rahimah',   amount: 2000, date: '2024-05-01', method: 'Online Banking', ref: 'TXN-2001', staff: 4 },
+  { id: 'R004', loanId: 'L003', customer: 'Raj Kumar',      amount: 5000, date: '2024-09-15', method: 'Cash',          ref: '',         staff: 3 },
+  { id: 'R005', loanId: 'L005', customer: 'Chen Ah Kow',    amount: 3000, date: '2024-12-10', method: 'Bank Transfer', ref: 'TXN-3001', staff: 3 },
+  { id: 'R006', loanId: 'L006', customer: 'Hafizuddin Noor', amount: 4500, date: '2025-02-20', method: 'Online Banking', ref: 'TXN-4001', staff: 4 },
+];
+
+let NOTIFICATIONS = [
+  { id: 'N001', type: 'due',     title: 'Payment Due Soon',     body: 'L002 – Siti Rahimah: RM 2,400 due in 3 days',  time: '10 min ago', read: false, loanId: 'L002' },
+  { id: 'N002', type: 'overdue', title: 'Overdue Alert',        body: 'L005 – Chen Ah Kow is 15 days overdue',         time: '1 hour ago', read: false, loanId: 'L005' },
+  { id: 'N003', type: 'overdue', title: 'Overdue Alert',        body: 'L002 – Siti Rahimah is 7 days overdue',         time: '2 hours ago', read: false, loanId: 'L002' },
+  { id: 'N004', type: 'paid',    title: 'Payment Received',     body: 'L006 – Hafizuddin paid RM 4,500',               time: 'Yesterday',  read: true,  loanId: 'L006' },
+  { id: 'N005', type: 'new',     title: 'New Loan Created',     body: 'L006 – Hafizuddin Noor: RM 12,000',            time: '3 days ago', read: true,  loanId: 'L006' },
+];
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+let currentUser = null;
+
+function fillLogin(u, p) {
+  document.getElementById('loginUser').value = u;
+  document.getElementById('loginPass').value = p;
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const user = USERS.find(x => x.username === u && x.password === p && x.active);
+  if (!user) { alert('Invalid credentials. Try: admin/admin123'); return; }
+  currentUser = user;
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  initApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('appShell').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function initApp() {
+  // Avatar
+  const initials = currentUser.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+  const avClass = currentUser.role === 'admin' ? 'av-admin' : currentUser.role === 'manager' ? 'av-manager' : 'av-staff';
+  document.getElementById('sidebarAvatar').textContent = initials;
+  document.getElementById('sidebarAvatar').className = `avatar ${avClass}`;
+  document.getElementById('sidebarName').textContent = currentUser.name;
+  document.getElementById('sidebarRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+
+  // Admin nav
+  if (currentUser.role !== 'admin') {
+    document.getElementById('adminNav').style.display = 'none';
+  } else {
+    document.getElementById('adminNav').style.display = '';
+  }
+
+  // Populate staff dropdown
+  const sel = document.getElementById('loanStaff');
+  sel.innerHTML = '<option value="">Select staff</option>';
+  USERS.filter(u => u.role === 'staff' || u.role === 'manager').forEach(u => {
+    sel.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+  });
+
+  // Today's date defaults
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('loanStartDate').value = today;
+  document.getElementById('repayDate').value = today;
+
+  updateNotifBadge();
+  nav('dashboard');
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function nav(page) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navMap = {
+    'dashboard': 0, 'notifications': 1, 'loans': 2, 'customers': 3,
+    'repayments': 4, 'overdue': 5, 'receivables': 6, 'performance': 7,
+    'calculator': 8, 'users': 9, 'settings': 10
+  };
+  document.querySelectorAll('.nav-item')[navMap[page] ?? 0]?.classList.add('active');
+
+  const titles = {
+    dashboard: 'Dashboard', notifications: 'Notifications', loans: 'All Loans',
+    customers: 'Customers', repayments: 'Repayments', overdue: 'Overdue Loans',
+    receivables: 'Accounts Receivable', performance: 'Performance', calculator: 'Interest Calculator',
+    users: 'Users & Roles', settings: 'Settings'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+
+  closeNotifPanel();
+  const pages = { dashboard: renderDashboard, notifications: renderNotifications, loans: renderLoans,
+    customers: renderCustomers, repayments: renderRepayments, overdue: renderOverdue,
+    receivables: renderReceivables, performance: renderPerformance, calculator: renderCalculator,
+    users: renderUsers, settings: renderSettings };
+  document.getElementById('pageContent').innerHTML = '';
+  if (pages[page]) pages[page]();
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function fmt(n) { return 'RM ' + Number(n).toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtNum(n) { return Number(n).toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function calcTotalInterest(loan) {
+  const { amount, rate, rateType, duration, durationUnit } = loan;
+  // Convert duration to periods based on rate type
+  let periods;
+  if (rateType === 'yearly') {
+    if (durationUnit === 'months') periods = duration / 12;
+    else if (durationUnit === 'weeks') periods = duration / 52;
+    else periods = duration / 365;
+  } else if (rateType === 'monthly') {
+    if (durationUnit === 'months') periods = duration;
+    else if (durationUnit === 'weeks') periods = duration / 4.33;
+    else periods = duration / 30;
+  } else if (rateType === 'weekly') {
+    if (durationUnit === 'weeks') periods = duration;
+    else if (durationUnit === 'months') periods = duration * 4.33;
+    else periods = duration / 7;
+  } else { // daily
+    if (durationUnit === 'days') periods = duration;
+    else if (durationUnit === 'months') periods = duration * 30;
+    else periods = duration * 7;
+  }
+  return amount * (rate / 100) * periods;
+}
+
+function calcEndDate(loan) {
+  const d = new Date(loan.startDate);
+  if (loan.durationUnit === 'months') d.setMonth(d.getMonth() + loan.duration);
+  else if (loan.durationUnit === 'weeks') d.setDate(d.getDate() + loan.duration * 7);
+  else d.setDate(d.getDate() + loan.duration);
+  return d.toISOString().split('T')[0];
+}
+
+function daysUntil(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr);
+  return Math.round((d - today) / 86400000);
+}
+
+function getStaffName(id) {
+  return USERS.find(u=>u.id==id)?.name || '—';
+}
+
+function statusBadge(s) {
+  const map = { active: 'badge-blue', overdue: 'badge-red', closed: 'badge-green', pending: 'badge-amber' };
+  return `<span class="badge ${map[s]||'badge-gray'}"><span class="dot"></span> ${s.charAt(0).toUpperCase()+s.slice(1)}</span>`;
+}
+
+function canEdit() { return ['admin','manager'].includes(currentUser.role); }
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════
+function updateNotifBadge() {
+  const unread = NOTIFICATIONS.filter(n=>!n.read).length;
+  const badge = document.getElementById('navNotifCount');
+  const dot = document.getElementById('notifDot');
+  if (unread > 0) {
+    badge.textContent = unread; badge.style.display = '';
+    dot.style.display = '';
+  } else {
+    badge.style.display = 'none';
+    dot.style.display = 'none';
+  }
+}
+
+function renderNotifPanel() {
+  const list = document.getElementById('notifList');
+  const icons = { due: '⏰', overdue: '⚠️', paid: '✅', new: '🆕' };
+  if (!NOTIFICATIONS.length) { list.innerHTML = '<div class="notif-empty">No notifications</div>'; return; }
+  list.innerHTML = NOTIFICATIONS.map(n => `
+    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${n.id}')">
+      <div class="notif-item-title">${icons[n.type]||'•'} ${n.title}</div>
+      <div class="notif-item-body">${n.body}</div>
+      <div class="notif-item-time">${n.time}</div>
+    </div>
+  `).join('');
+}
+
+function toggleNotifPanel() {
+  const panel = document.getElementById('notifPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) renderNotifPanel();
+}
+function closeNotifPanel() { document.getElementById('notifPanel').classList.remove('open'); }
+
+function markRead(id) {
+  const n = NOTIFICATIONS.find(x=>x.id===id);
+  if (n) n.read = true;
+  renderNotifPanel();
+  updateNotifBadge();
+}
+
+function markAllRead() {
+  NOTIFICATIONS.forEach(n => n.read = true);
+  renderNotifPanel();
+  updateNotifBadge();
+}
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const activeLoans = LOANS.filter(l=>l.status==='active'||l.status==='overdue');
+  const overdueLoans = LOANS.filter(l=>l.status==='overdue');
+  const totalDisbursed = LOANS.reduce((s,l)=>s+l.amount,0);
+  const totalReceivable = LOANS.filter(l=>l.status!=='closed').reduce((s,l)=>{
+    return s + (l.amount + calcTotalInterest(l) - l.paidAmount);
+  },0);
+
+  // Today's collections
+  const today = new Date().toISOString().split('T')[0];
+  const todayCollection = REPAYMENTS.filter(r=>r.date===today).reduce((s,r)=>s+r.amount,0);
+
+  // This month's collections
+  const thisMonth = today.slice(0,7);
+  const monthCollection = REPAYMENTS.filter(r=>r.date.startsWith(thisMonth)).reduce((s,r)=>s+r.amount,0);
+
+  const overdueCount = document.getElementById('navOverdueCount');
+  if (overdueCount) overdueCount.textContent = overdueLoans.length;
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Active Loans</div>
+        <div class="stat-value" style="color:var(--accent)">${activeLoans.length}</div>
+        <div class="stat-change">${overdueLoans.length} overdue</div>
+        <div class="stat-icon">◇</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Disbursed</div>
+        <div class="stat-value">${fmtNum(totalDisbursed)}</div>
+        <div class="stat-change up" style="font-family:var(--mono);font-size:10px">RM</div>
+        <div class="stat-icon">↗</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Accounts Receivable</div>
+        <div class="stat-value" style="color:var(--amber)">${fmtNum(totalReceivable)}</div>
+        <div class="stat-change" style="font-family:var(--mono);font-size:10px">RM Outstanding</div>
+        <div class="stat-icon">◁</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Month Collection</div>
+        <div class="stat-value" style="color:var(--green)">${fmtNum(monthCollection)}</div>
+        <div class="stat-change up">↑ Today: ${fmt(todayCollection)}</div>
+        <div class="stat-icon">✓</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Due Soon</div><div class="card-sub">Next 14 days</div></div>
+          <button class="btn btn-secondary btn-sm" onclick="nav('overdue')">View all</button>
+        </div>
+        ${renderDueSoon()}
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Recent Repayments</div><div class="card-sub">Latest payments</div></div>
+          <button class="btn btn-secondary btn-sm" onclick="nav('repayments')">View all</button>
+        </div>
+        ${renderRecentRepayments()}
+      </div>
+    </div>
+
+    <div class="mt-16">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Loan Portfolio Overview</div></div>
+        </div>
+        ${renderPortfolioTable()}
+      </div>
+    </div>
+  `;
+}
+
+function renderDueSoon() {
+  const upcoming = LOANS.filter(l=>l.status==='active'||l.status==='overdue').map(l=>{
+    const end = calcEndDate(l);
+    const days = daysUntil(end);
+    return {...l, endDate: end, daysLeft: days};
+  }).filter(l=>l.daysLeft<=30).sort((a,b)=>a.daysLeft-b.daysLeft).slice(0,5);
+
+  if (!upcoming.length) return `<div class="empty-state"><div class="empty-icon">✓</div><div class="empty-text">No upcoming dues</div></div>`;
+
+  return upcoming.map(l=>{
+    const remaining = l.amount + calcTotalInterest(l) - l.paidAmount;
+    const urgent = l.daysLeft <= 0 ? 'badge-red' : l.daysLeft <= 7 ? 'badge-amber' : 'badge-blue';
+    const dayText = l.daysLeft < 0 ? `${Math.abs(l.daysLeft)}d overdue` : l.daysLeft === 0 ? 'Due today' : `${l.daysLeft}d left`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${l.customer}</div>
+        <div class="text-muted">${l.id} · ${fmt(remaining)} remaining</div>
+      </div>
+      <span class="badge ${urgent}">${dayText}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderRecentRepayments() {
+  const recent = [...REPAYMENTS].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  if (!recent.length) return `<div class="empty-state"><div class="empty-text">No repayments yet</div></div>`;
+  return recent.map(r=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${r.customer}</div>
+        <div class="text-muted">${r.loanId} · ${r.method}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--mono);font-size:13px;color:var(--green);font-weight:500">+${fmt(r.amount)}</div>
+        <div class="text-muted">${r.date}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPortfolioTable() {
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Loan ID</th><th>Customer</th><th>Principal</th><th>Paid</th><th>Outstanding</th><th>Progress</th><th>Status</th></tr></thead>
+    <tbody>
+    ${LOANS.map(l=>{
+      const total = l.amount + calcTotalInterest(l);
+      const outstanding = total - l.paidAmount;
+      const pct = Math.min(100, Math.round((l.paidAmount/total)*100));
+      return `<tr>
+        <td class="td-mono">${l.id}</td>
+        <td>${l.customer}</td>
+        <td class="td-mono">${fmt(l.amount)}</td>
+        <td class="td-mono" style="color:var(--green)">${fmt(l.paidAmount)}</td>
+        <td class="td-mono" style="color:var(--amber)">${fmt(outstanding)}</td>
+        <td style="min-width:100px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <span style="font-size:10px;font-family:var(--mono);color:var(--text2)">${pct}%</span>
+          </div>
+        </td>
+        <td>${statusBadge(l.status)}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  ALL LOANS
+// ══════════════════════════════════════════════
+function renderLoans(filter='') {
+  const loans = filter ? LOANS.filter(l=>l.customer.toLowerCase().includes(filter)||l.id.toLowerCase().includes(filter)) : LOANS;
+
+  // Filter by staff if staff role
+  const visibleLoans = currentUser.role === 'staff' ? loans.filter(l=>l.staff===currentUser.id) : loans;
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div>
+        <div class="section-title">Loan Management</div>
+        <div class="section-sub">${visibleLoans.length} loans total</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" placeholder="Search..." onkeyup="renderLoans(this.value)" />
+        </div>
+        <select style="height:34px;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:0 8px;background:var(--surface)" onchange="filterLoans(this.value)">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="overdue">Overdue</option>
+          <option value="closed">Closed</option>
+        </select>
+        ${canEdit() ? `<button class="btn btn-primary" onclick="openModal('addLoanModal')">+ New Loan</button>` : ''}
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Loan ID</th><th>Customer</th><th>Amount</th><th>Interest</th><th>Total</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Staff</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+          ${visibleLoans.map(l=>{
+            const interest = calcTotalInterest(l);
+            const total = l.amount + interest;
+            const balance = total - l.paidAmount;
+            const endDate = calcEndDate(l);
+            const rateLabel = {yearly:'%/yr',monthly:'%/mo',weekly:'%/wk',daily:'%/day'}[l.rateType];
+            return `<tr>
+              <td class="td-mono">${l.id}</td>
+              <td><div style="font-weight:500">${l.customer}</div><div class="text-muted">${l.phone}</div></td>
+              <td class="td-mono">${fmt(l.amount)}</td>
+              <td class="td-mono" style="color:var(--text2)">${l.rate}${rateLabel}</td>
+              <td class="td-mono">${fmt(total)}</td>
+              <td class="td-mono" style="color:var(--green)">${fmt(l.paidAmount)}</td>
+              <td class="td-mono" style="color:${balance>0?'var(--amber)':'var(--green)'}">${fmt(balance)}</td>
+              <td class="td-mono">${endDate}</td>
+              <td>${getStaffName(l.staff)}</td>
+              <td>${statusBadge(l.status)}</td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-success btn-sm" onclick="openRepayModal('${l.id}')">Pay</button>
+                  ${canEdit()?`<button class="btn btn-secondary btn-sm" onclick="viewLoan('${l.id}')">View</button>`:''}
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterLoans(status) {
+  const loans = status ? LOANS.filter(l=>l.status===status) : LOANS;
+  // re-render with filter applied — simplified
+  renderLoans();
+}
+
+function viewLoan(id) {
+  const l = LOANS.find(x=>x.id===id);
+  if (!l) return;
+  const interest = calcTotalInterest(l);
+  const total = l.amount + interest;
+  const balance = total - l.paidAmount;
+  const reps = REPAYMENTS.filter(r=>r.loanId===id);
+  alert(`LOAN DETAILS — ${l.id}\n\nCustomer: ${l.customer}\nPhone: ${l.phone}\nPrincipal: ${fmt(l.amount)}\nTotal Interest: ${fmt(interest)}\nTotal Payable: ${fmt(total)}\nPaid: ${fmt(l.paidAmount)}\nBalance: ${fmt(balance)}\nEnd Date: ${calcEndDate(l)}\nStatus: ${l.status}\nPayments: ${reps.length} records\nNotes: ${l.notes||'—'}`);
+}
+
+// ══════════════════════════════════════════════
+//  CUSTOMERS
+// ══════════════════════════════════════════════
+function renderCustomers() {
+  // Unique customers from loans
+  const customers = {};
+  LOANS.forEach(l=>{
+    if (!customers[l.customer]) customers[l.customer] = { name: l.customer, phone: l.phone, loans: [], totalBorrowed: 0, totalPaid: 0 };
+    customers[l.customer].loans.push(l);
+    customers[l.customer].totalBorrowed += l.amount;
+    customers[l.customer].totalPaid += l.paidAmount;
+  });
+  const list = Object.values(customers);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Customers</div><div class="section-sub">${list.length} customers</div></div>
+    </div>
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Customer Name</th><th>Phone</th><th>Total Loans</th><th>Active</th><th>Total Borrowed</th><th>Total Paid</th><th>Outstanding</th></tr></thead>
+        <tbody>
+        ${list.map(c=>{
+          const active = c.loans.filter(l=>l.status==='active'||l.status==='overdue').length;
+          const outstanding = c.totalBorrowed - c.totalPaid;
+          return `<tr>
+            <td style="font-weight:500">${c.name}</td>
+            <td class="td-mono">${c.phone}</td>
+            <td>${c.loans.length}</td>
+            <td>${active}</td>
+            <td class="td-mono">${fmt(c.totalBorrowed)}</td>
+            <td class="td-mono" style="color:var(--green)">${fmt(c.totalPaid)}</td>
+            <td class="td-mono" style="color:${outstanding>0?'var(--amber)':'var(--green)'}">${fmt(outstanding)}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  REPAYMENTS
+// ══════════════════════════════════════════════
+function renderRepayments() {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Repayment Records</div><div class="section-sub">${REPAYMENTS.length} transactions</div></div>
+      <button class="btn btn-primary" onclick="openModal('addRepayModal')">+ Record Payment</button>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card">
+        <div class="stat-label">Total Collected</div>
+        <div class="stat-value" style="color:var(--green)">${fmtNum(REPAYMENTS.reduce((s,r)=>s+r.amount,0))}</div>
+        <div class="stat-change" style="font-family:var(--mono);font-size:10px">RM all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value">${REPAYMENTS.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Payment</div>
+        <div class="stat-value">${fmtNum(REPAYMENTS.reduce((s,r)=>s+r.amount,0)/REPAYMENTS.length||0)}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Ref ID</th><th>Loan ID</th><th>Customer</th><th>Amount</th><th>Date</th><th>Method</th><th>Reference</th><th>Staff</th></tr></thead>
+        <tbody>
+        ${[...REPAYMENTS].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`
+          <tr>
+            <td class="td-mono">${r.id}</td>
+            <td class="td-mono">${r.loanId}</td>
+            <td>${r.customer}</td>
+            <td class="td-mono" style="color:var(--green);font-weight:600">+${fmt(r.amount)}</td>
+            <td class="td-mono">${r.date}</td>
+            <td><span class="badge badge-gray">${r.method}</span></td>
+            <td class="td-mono">${r.ref||'—'}</td>
+            <td>${getStaffName(r.staff)}</td>
+          </tr>
+        `).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  OVERDUE
+// ══════════════════════════════════════════════
+function renderOverdue() {
+  const overdue = LOANS.filter(l=>l.status==='overdue');
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Overdue Loans</div><div class="section-sub">${overdue.length} accounts requiring action</div></div>
+    </div>
+    ${overdue.length===0 ? `<div class="card"><div class="empty-state"><div class="empty-icon">✓</div><div class="empty-text">No overdue loans!</div></div></div>` : `
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Loan ID</th><th>Customer</th><th>Contact</th><th>Principal</th><th>Balance</th><th>Due Date</th><th>Days Overdue</th><th>Staff</th><th>Actions</th></tr></thead>
+        <tbody>
+        ${overdue.map(l=>{
+          const interest = calcTotalInterest(l);
+          const balance = l.amount + interest - l.paidAmount;
+          const endDate = calcEndDate(l);
+          const daysOver = Math.abs(Math.min(0, daysUntil(endDate)));
+          return `<tr style="background:rgba(220,38,38,0.02)">
+            <td class="td-mono">${l.id}</td>
+            <td style="font-weight:500">${l.customer}</td>
+            <td class="td-mono">${l.phone}</td>
+            <td class="td-mono">${fmt(l.amount)}</td>
+            <td class="td-mono" style="color:var(--red);font-weight:600">${fmt(balance)}</td>
+            <td class="td-mono">${endDate}</td>
+            <td><span class="badge badge-red">${daysOver}d overdue</span></td>
+            <td>${getStaffName(l.staff)}</td>
+            <td>
+              <button class="btn btn-success btn-sm" onclick="openRepayModal('${l.id}')">Record Payment</button>
+            </td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table></div>
+    </div>`}
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  RECEIVABLES
+// ══════════════════════════════════════════════
+function renderReceivables() {
+  const active = LOANS.filter(l=>l.status!=='closed');
+  const totalPrincipal = active.reduce((s,l)=>s+l.amount,0);
+  const totalInterest = active.reduce((s,l)=>s+calcTotalInterest(l),0);
+  const totalReceivable = active.reduce((s,l)=>s+(l.amount+calcTotalInterest(l)-l.paidAmount),0);
+  const totalPaid = active.reduce((s,l)=>s+l.paidAmount,0);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-title" style="margin-bottom:16px">Accounts Receivable</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Principal</div>
+        <div class="stat-value" style="font-size:18px">${fmtNum(totalPrincipal)}</div>
+        <div class="text-muted mt-4">RM disbursed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Interest</div>
+        <div class="stat-value" style="font-size:18px;color:var(--purple)">${fmtNum(totalInterest)}</div>
+        <div class="text-muted mt-4">RM expected income</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Amount Collected</div>
+        <div class="stat-value" style="font-size:18px;color:var(--green)">${fmtNum(totalPaid)}</div>
+        <div class="text-muted mt-4">RM received</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Outstanding Balance</div>
+        <div class="stat-value" style="font-size:18px;color:var(--amber)">${fmtNum(totalReceivable)}</div>
+        <div class="text-muted mt-4">RM to collect</div>
+      </div>
+    </div>
+    <div class="card mt-16">
+      <div class="card-header"><div class="card-title">Receivable by Loan</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Loan ID</th><th>Customer</th><th>Principal</th><th>Interest</th><th>Total Payable</th><th>Collected</th><th>Outstanding</th><th>Collection %</th><th>Status</th></tr></thead>
+        <tbody>
+        ${active.map(l=>{
+          const interest = calcTotalInterest(l);
+          const total = l.amount + interest;
+          const outstanding = total - l.paidAmount;
+          const pct = Math.round((l.paidAmount/total)*100);
+          return `<tr>
+            <td class="td-mono">${l.id}</td>
+            <td>${l.customer}</td>
+            <td class="td-mono">${fmt(l.amount)}</td>
+            <td class="td-mono" style="color:var(--purple)">${fmt(interest)}</td>
+            <td class="td-mono">${fmt(total)}</td>
+            <td class="td-mono" style="color:var(--green)">${fmt(l.paidAmount)}</td>
+            <td class="td-mono" style="color:${outstanding>0?'var(--amber)':'var(--green)'}">${fmt(outstanding)}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="progress-bar" style="flex:1;width:80px"><div class="progress-fill" style="width:${pct}%;background:${pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)'}"></div></div>
+                <span style="font-size:11px;font-family:var(--mono)">${pct}%</span>
+              </div>
+            </td>
+            <td>${statusBadge(l.status)}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  PERFORMANCE
+// ══════════════════════════════════════════════
+function renderPerformance() {
+  const today = new Date();
+  const thisMonth = today.toISOString().slice(0,7);
+  const lastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1).toISOString().slice(0,7);
+
+  const thisMonthRep = REPAYMENTS.filter(r=>r.date.startsWith(thisMonth));
+  const lastMonthRep = REPAYMENTS.filter(r=>r.date.startsWith(lastMonth));
+
+  const thisMonthTotal = thisMonthRep.reduce((s,r)=>s+r.amount,0);
+  const lastMonthTotal = lastMonthRep.reduce((s,r)=>s+r.amount,0);
+  const change = lastMonthTotal ? ((thisMonthTotal-lastMonthTotal)/lastMonthTotal*100).toFixed(1) : 0;
+
+  // Per staff performance
+  const staffPerf = {};
+  USERS.filter(u=>u.role==='staff'||u.role==='manager').forEach(u => {
+    const myRep = REPAYMENTS.filter(r=>r.staff===u.id);
+    const myLoans = LOANS.filter(l=>l.staff===u.id);
+    staffPerf[u.id] = {
+      name: u.name,
+      role: u.role,
+      totalCollection: myRep.reduce((s,r)=>s+r.amount,0),
+      thisMonth: myRep.filter(r=>r.date.startsWith(thisMonth)).reduce((s,r)=>s+r.amount,0),
+      activeLoans: myLoans.filter(l=>l.status==='active'||l.status==='overdue').length,
+      overdueLoans: myLoans.filter(l=>l.status==='overdue').length,
+    };
+  });
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-title" style="margin-bottom:16px">Performance Dashboard</div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card">
+        <div class="stat-label">This Month Collection</div>
+        <div class="stat-value" style="color:var(--green)">${fmtNum(thisMonthTotal)}</div>
+        <div class="stat-change ${change>=0?'up':'down'}">${change>=0?'↑':'↓'} ${Math.abs(change)}% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Last Month Collection</div>
+        <div class="stat-value">${fmtNum(lastMonthTotal)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Loans Issued</div>
+        <div class="stat-value">${LOANS.length}</div>
+        <div class="stat-change">${LOANS.filter(l=>l.status==='active').length} active</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mt-16">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Staff Performance — This Month</div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Staff</th><th>Role</th><th>Loans</th><th>Overdue</th><th>This Month (RM)</th><th>All Time (RM)</th></tr></thead>
+          <tbody>
+          ${Object.values(staffPerf).map(s=>`
+            <tr>
+              <td style="font-weight:500">${s.name}</td>
+              <td><span class="badge ${s.role==='manager'?'badge-purple':'badge-blue'}">${s.role}</span></td>
+              <td>${s.activeLoans}</td>
+              <td>${s.overdueLoans>0?`<span style="color:var(--red);font-weight:500">${s.overdueLoans}</span>`:'0'}</td>
+              <td class="td-mono" style="color:var(--green)">${fmtNum(s.thisMonth)}</td>
+              <td class="td-mono">${fmtNum(s.totalCollection)}</td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Monthly Collections</div></div>
+        ${renderMonthlyChart()}
+      </div>
+    </div>
+  `;
+}
+
+function renderMonthlyChart() {
+  // Last 6 months
+  const months = [];
+  const today = new Date();
+  for (let i=5; i>=0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth()-i, 1);
+    months.push({ label: d.toLocaleString('default',{month:'short'}), key: d.toISOString().slice(0,7) });
+  }
+  const data = months.map(m=>({
+    ...m,
+    total: REPAYMENTS.filter(r=>r.date.startsWith(m.key)).reduce((s,r)=>s+r.amount,0)
+  }));
+  const max = Math.max(...data.map(d=>d.total), 1);
+
+  return `<div style="display:flex;align-items:flex-end;gap:10px;height:140px;padding:8px 0">
+    ${data.map(d=>{
+      const h = max > 0 ? Math.round((d.total/max)*120) : 0;
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:9px;color:var(--text2);font-family:var(--mono)">${d.total?'RM '+fmtNum(d.total):''}</div>
+        <div style="width:100%;background:${d.total?'var(--accent)':'var(--border)'};height:${h||4}px;border-radius:4px 4px 0 0;transition:height 0.3s"></div>
+        <div style="font-size:10px;color:var(--text2)">${d.label}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  CALCULATOR
+// ══════════════════════════════════════════════
+function renderCalculator() {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-title" style="margin-bottom:16px">Interest Calculator</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Loan Calculator</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Principal Amount (RM)</label>
+            <input type="number" id="calcPrincipal" placeholder="10000" oninput="runCalc()" />
+          </div>
+          <div class="form-group">
+            <label>Interest Rate (%)</label>
+            <input type="number" id="calcRate" placeholder="5" step="0.1" oninput="runCalc()" />
+          </div>
+          <div class="form-group">
+            <label>Rate Type</label>
+            <select id="calcRateType" onchange="runCalc()">
+              <option value="yearly">Per Year</option>
+              <option value="monthly">Per Month</option>
+              <option value="weekly">Per Week</option>
+              <option value="daily">Per Day</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Duration</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" id="calcDuration" placeholder="12" oninput="runCalc()" style="flex:1" />
+              <select id="calcDurationUnit" onchange="runCalc()" style="width:110px">
+                <option value="months">Months</option>
+                <option value="weeks">Weeks</option>
+                <option value="days">Days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="calc-result" id="calcResult" style="display:none">
+          <div class="calc-row"><span class="lbl">Principal</span><span class="val" id="c-principal">—</span></div>
+          <div class="calc-row"><span class="lbl">Total Interest</span><span class="val" id="c-interest">—</span></div>
+          <div class="calc-row"><span class="lbl">Total Repayable</span><span class="val" id="c-total">—</span></div>
+          <div class="calc-row"><span class="lbl">Per Month</span><span class="val" id="c-monthly">—</span></div>
+          <div class="calc-row total"><span class="lbl">Effective Monthly Rate</span><span class="val" id="c-eff">—</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">Interest Rate Conversion</div>
+        <div class="form-group">
+          <label>Enter Rate (%)</label>
+          <input type="number" id="convRate" placeholder="5" oninput="runConv()" />
+        </div>
+        <div class="form-group mt-8">
+          <label>Rate Type</label>
+          <select id="convType" onchange="runConv()">
+            <option value="yearly">Per Year → convert all</option>
+            <option value="monthly">Per Month → convert all</option>
+            <option value="weekly">Per Week → convert all</option>
+            <option value="daily">Per Day → convert all</option>
+          </select>
+        </div>
+        <div id="convResult" style="display:none;margin-top:14px">
+          <div class="calc-result">
+            <div class="calc-row"><span class="lbl">Per Year</span><span class="val" id="cv-yearly">—</span></div>
+            <div class="calc-row"><span class="lbl">Per Month</span><span class="val" id="cv-monthly">—</span></div>
+            <div class="calc-row"><span class="lbl">Per Week</span><span class="val" id="cv-weekly">—</span></div>
+            <div class="calc-row"><span class="lbl">Per Day</span><span class="val" id="cv-daily">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function runCalc() {
+  const p = parseFloat(document.getElementById('calcPrincipal')?.value);
+  const r = parseFloat(document.getElementById('calcRate')?.value);
+  const rt = document.getElementById('calcRateType')?.value;
+  const d = parseFloat(document.getElementById('calcDuration')?.value);
+  const du = document.getElementById('calcDurationUnit')?.value;
+  if (!p||!r||!d) return;
+
+  const interest = calcTotalInterest({ amount:p, rate:r, rateType:rt, duration:d, durationUnit:du });
+  const total = p + interest;
+  let months = du==='months'?d : du==='weeks'?d/4.33 : d/30;
+
+  document.getElementById('c-principal').textContent = fmt(p);
+  document.getElementById('c-interest').textContent = fmt(interest);
+  document.getElementById('c-total').textContent = fmt(total);
+  document.getElementById('c-monthly').textContent = fmt(total/months);
+  document.getElementById('c-eff').textContent = ((interest/p)*100/months).toFixed(3)+'% /mo';
+  document.getElementById('calcResult').style.display = 'block';
+}
+
+function runConv() {
+  const r = parseFloat(document.getElementById('convRate')?.value);
+  const t = document.getElementById('convType')?.value;
+  if (!r) return;
+
+  let yearlyRate;
+  if (t==='yearly') yearlyRate = r;
+  else if (t==='monthly') yearlyRate = r * 12;
+  else if (t==='weekly') yearlyRate = r * 52;
+  else yearlyRate = r * 365;
+
+  document.getElementById('cv-yearly').textContent = yearlyRate.toFixed(4) + '%';
+  document.getElementById('cv-monthly').textContent = (yearlyRate/12).toFixed(4) + '%';
+  document.getElementById('cv-weekly').textContent = (yearlyRate/52).toFixed(4) + '%';
+  document.getElementById('cv-daily').textContent = (yearlyRate/365).toFixed(6) + '%';
+  document.getElementById('convResult').style.display = 'block';
+}
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS PAGE
+// ══════════════════════════════════════════════
+function renderNotifications() {
+  const icons = { due:'⏰', overdue:'⚠️', paid:'✅', new:'🆕' };
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Notifications</div></div>
+      <button class="btn btn-secondary" onclick="markAllRead();renderNotifications()">Mark all read</button>
+    </div>
+    <div class="card">
+    ${NOTIFICATIONS.length===0?'<div class="empty-state"><div class="empty-text">No notifications</div></div>':
+      NOTIFICATIONS.map(n=>`
+        <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);${n.read?'':'background:var(--accent-bg)'}">
+          <div style="font-size:20px;flex-shrink:0">${icons[n.type]||'•'}</div>
+          <div style="flex:1">
+            <div style="font-weight:500;font-size:13px">${n.title}</div>
+            <div style="color:var(--text2);font-size:12px;margin-top:2px">${n.body}</div>
+            <div style="color:var(--text3);font-size:11px;font-family:var(--mono);margin-top:4px">${n.time}</div>
+          </div>
+          ${n.read?'':`<button class="btn btn-secondary btn-sm" onclick="markRead('${n.id}');renderNotifications()">Mark read</button>`}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  USERS
+// ══════════════════════════════════════════════
+function renderUsers() {
+  if (currentUser.role !== 'admin') {
+    document.getElementById('pageContent').innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-text">Access Restricted</div><div class="empty-sub">Admin only</div></div></div>`;
+    return;
+  }
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Users & Roles</div><div class="section-sub">${USERS.length} users</div></div>
+      <button class="btn btn-primary" onclick="openModal('addUserModal')">+ Add User</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        ${USERS.map(u=>`
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:9px">
+                <div class="avatar ${u.role==='admin'?'av-admin':u.role==='manager'?'av-manager':'av-staff'}" style="width:28px;height:28px;font-size:10px">
+                  ${u.name.split(' ').map(w=>w[0]).slice(0,2).join('')}
+                </div>
+                <span style="font-weight:500">${u.name}</span>
+              </div>
+            </td>
+            <td class="td-mono">${u.username}</td>
+            <td>
+              <span class="badge ${u.role==='admin'?'badge-gray':u.role==='manager'?'badge-purple':'badge-blue'}">
+                ${u.role==='admin'?'👑':u.role==='manager'?'🧑‍💼':'👤'} ${u.role}
+              </span>
+            </td>
+            <td>${u.email}</td>
+            <td class="td-mono">${u.phone}</td>
+            <td><span class="badge ${u.active?'badge-green':'badge-red'}">${u.active?'Active':'Inactive'}</span></td>
+            <td>
+              ${u.id!==currentUser.id?`<button class="btn btn-danger btn-sm" onclick="toggleUser(${u.id})">${u.active?'Deactivate':'Activate'}</button>`:'<span class="text-muted">You</span>'}
+            </td>
+          </tr>
+        `).join('')}
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card mt-16">
+      <div class="card-title" style="margin-bottom:12px">Role Permissions</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Feature</th><th>Staff</th><th>Manager</th><th>Admin</th></tr></thead>
+        <tbody>
+          ${[
+            ['View own loans','✅','✅','✅'],
+            ['View all loans','❌','✅','✅'],
+            ['Create loans','❌','✅','✅'],
+            ['Record repayments','✅','✅','✅'],
+            ['View performance','❌','✅','✅'],
+            ['Manage users','❌','❌','✅'],
+            ['System settings','❌','❌','✅'],
+          ].map(r=>`<tr><td>${r[0]}</td><td style="text-align:center">${r[1]}</td><td style="text-align:center">${r[2]}</td><td style="text-align:center">${r[3]}</td></tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+function toggleUser(id) {
+  const u = USERS.find(x=>x.id===id);
+  if (u) { u.active = !u.active; renderUsers(); }
+}
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+function renderSettings() {
+  if (currentUser.role !== 'admin') {
+    document.getElementById('pageContent').innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-text">Admin only</div></div></div>`;
+    return;
+  }
+  document.getElementById('pageContent').innerHTML = `
+    <div class="section-title" style="margin-bottom:16px">System Settings</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Company Info</div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Company Name</label><input type="text" value="LoanTrack Financial Services" /></div>
+          <div class="form-group full"><label>Company Address</label><textarea>Kuala Lumpur, Malaysia</textarea></div>
+          <div class="form-group"><label>Phone</label><input type="text" value="03-12345678" /></div>
+          <div class="form-group"><label>Email</label><input type="email" value="admin@loantrack.my" /></div>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-primary">Save Changes</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Notification Settings</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          ${[
+            ['Due Reminder', 'Notify X days before due date', '7'],
+            ['Overdue Alert', 'Alert after X days overdue', '1'],
+          ].map(([title,desc,val])=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--bg);border-radius:8px">
+              <div><div style="font-weight:500;font-size:13px">${title}</div><div class="text-muted">${desc}</div></div>
+              <input type="number" value="${val}" style="width:60px;text-align:center" />
+            </div>
+          `).join('')}
+          <div style="padding:10px;background:var(--bg);border-radius:8px">
+            <div style="font-weight:500;font-size:13px;margin-bottom:8px">Email Notifications</div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" checked style="width:auto" /> Send overdue alerts to staff email
+            </label>
+          </div>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-primary">Save Settings</button></div>
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  MODAL HANDLERS
+// ══════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+function openRepayModal(loanId) {
+  const loan = LOANS.find(l=>l.id===loanId);
+  if (!loan) return;
+  document.getElementById('repayLoanId').value = loanId;
+  document.getElementById('repayCustomer').value = loan.customer;
+  document.getElementById('repayRef').value = 'TXN-' + Math.floor(Math.random()*9000+1000);
+  openModal('addRepayModal');
+}
+
+function calcLoanPreview() {
+  const amount = parseFloat(document.getElementById('loanAmount').value);
+  const rate = parseFloat(document.getElementById('loanRate').value);
+  const rateType = document.getElementById('loanRateType').value;
+  const duration = parseFloat(document.getElementById('loanDuration').value);
+  const durationUnit = document.getElementById('loanDurationUnit').value;
+  if (!amount||!rate||!duration) { document.getElementById('loanPreview').style.display='none'; return; }
+
+  const interest = calcTotalInterest({amount,rate,rateType,duration,durationUnit});
+  const total = amount + interest;
+  let periods = durationUnit==='months'?duration : durationUnit==='weeks'?duration : duration;
+
+  document.getElementById('prev-principal').textContent = fmt(amount);
+  document.getElementById('prev-interest').textContent = fmt(interest);
+  document.getElementById('prev-install').textContent = fmt(total/periods);
+  document.getElementById('prev-total').textContent = fmt(total);
+  document.getElementById('loanPreview').style.display = 'block';
+}
+
+function submitLoan() {
+  const customer = document.getElementById('loanCustomer').value.trim();
+  const phone = document.getElementById('loanPhone').value.trim();
+  const amount = parseFloat(document.getElementById('loanAmount').value);
+  const rate = parseFloat(document.getElementById('loanRate').value);
+  const rateType = document.getElementById('loanRateType').value;
+  const duration = parseFloat(document.getElementById('loanDuration').value);
+  const durationUnit = document.getElementById('loanDurationUnit').value;
+  const startDate = document.getElementById('loanStartDate').value;
+  const staff = parseInt(document.getElementById('loanStaff').value);
+  const notes = document.getElementById('loanNotes').value;
+
+  if (!customer||!amount||!rate||!duration||!startDate) { alert('Please fill all required fields.'); return; }
+
+  const newId = 'L' + String(LOANS.length + 1).padStart(3,'0');
+  LOANS.push({ id:newId, customer, phone, amount, rate, rateType, duration, durationUnit, startDate, staff, status:'active', notes, paidAmount:0 });
+
+  NOTIFICATIONS.unshift({ id:'N'+Date.now(), type:'new', title:'New Loan Created', body:`${newId} – ${customer}: ${fmt(amount)}`, time:'Just now', read:false });
+  updateNotifBadge();
+
+  closeModal('addLoanModal');
+  nav('loans');
+}
+
+function submitRepayment() {
+  const loanId = document.getElementById('repayLoanId').value;
+  const amount = parseFloat(document.getElementById('repayAmount').value);
+  const date = document.getElementById('repayDate').value;
+  const method = document.getElementById('repayMethod').value;
+  const ref = document.getElementById('repayRef').value;
+
+  if (!amount||!date) { alert('Please enter amount and date.'); return; }
+
+  const loan = LOANS.find(l=>l.id===loanId);
+  if (!loan) return;
+
+  const newId = 'R' + String(REPAYMENTS.length + 1).padStart(3,'0');
+  REPAYMENTS.push({ id:newId, loanId, customer:loan.customer, amount, date, method, ref, staff:currentUser.id });
+  loan.paidAmount += amount;
+
+  const totalPayable = loan.amount + calcTotalInterest(loan);
+  if (loan.paidAmount >= totalPayable) loan.status = 'closed';
+
+  NOTIFICATIONS.unshift({ id:'N'+Date.now(), type:'paid', title:'Payment Recorded', body:`${loanId} – ${loan.customer}: ${fmt(amount)} received`, time:'Just now', read:false });
+  updateNotifBadge();
+
+  closeModal('addRepayModal');
+  nav('repayments');
+}
+
+function submitUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const username = document.getElementById('newUserUsername').value.trim();
+  const password = document.getElementById('newUserPass').value;
+  const role = document.getElementById('newUserRole').value;
+  const email = document.getElementById('newUserEmail').value.trim();
+  const phone = document.getElementById('newUserPhone').value.trim();
+
+  if (!name||!username||!password) { alert('Name, username and password are required.'); return; }
+  if (USERS.find(u=>u.username===username)) { alert('Username already exists.'); return; }
+
+  USERS.push({ id: USERS.length+1, username, password, name, role, email, phone, active:true });
+  closeModal('addUserModal');
+  renderUsers();
+}
+
+function globalSearch(val) {
+  if (val.length < 2) return;
+  // quick nav to loans with search
+}
+</script>
+</body>
+</html>
